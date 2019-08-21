@@ -30,7 +30,6 @@ namespace CzechNationalBank.Clients
                 throw new Exception($"Ошибка запроса на {_client.BaseAddress}");
             
             var fileStream = await response.Content.ReadAsStreamAsync();
-            
             var streamReader = new StreamReader(fileStream, System.Text.Encoding.UTF8);
 
             var result = new List<ExchangeRate>();
@@ -49,7 +48,10 @@ namespace CzechNationalBank.Clients
             while ((line = streamReader.ReadLine()) != null)
             {
                 var substrings = line.Split('|');
-                var date = DateTime.ParseExact(substrings.First(), "dd.MM.yyyy", CultureInfo.InvariantCulture);
+                var date =
+                    DateTimeOffset.ParseExact(substrings.First(), "dd.MM.yyyy", 
+                        CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
+                
                 var data = substrings.Skip(1).Select((rate, index) => new ExchangeRate
                 {
                     Rate = decimal.Parse(rate) * int.Parse(header[index].Amount),
@@ -71,7 +73,6 @@ namespace CzechNationalBank.Clients
                 throw new Exception($"Ошибка запроса на {_client.BaseAddress}");
             
             var fileStream = await response.Content.ReadAsStreamAsync();
-            
             var streamReader = new StreamReader(fileStream, System.Text.Encoding.UTF8);
 
             var result = new List<ExchangeRate>();
@@ -79,8 +80,10 @@ namespace CzechNationalBank.Clients
             var header = streamReader.ReadLine().Split('#').First();
             header = header.Remove(header.Length - 1);
 
-            //TODO: не работает парсинг даты
-            var rateDate = DateTime.ParseExact(header, "dd MMM yyyy", CultureInfo.InvariantCulture);
+            var rateDate = 
+                DateTimeOffset.ParseExact(header, "dd MMM yyyy", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
+            
+            streamReader.ReadLine();
 
             string line;
             while ((line = streamReader.ReadLine()) != null)

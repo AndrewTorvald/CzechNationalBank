@@ -22,11 +22,8 @@ namespace CzechNationalBank.Console
 
             ConfigureLogging(provider);
             
-            using (var scope = provider.CreateScope())
-            {
-                var dbContext = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-                dbContext.Database.Migrate();
-            }
+            var dbContext = provider.GetRequiredService<DatabaseContext>();
+            dbContext.Database.Migrate();
 
             var commandLineInterface = provider.GetService<CommandLineInterface>();
             ConfigureCommandLineInterface(commandLineInterface);
@@ -52,7 +49,7 @@ namespace CzechNationalBank.Console
             // Infrastructure
             services.AddDbContext<DatabaseContext>();
             
-            services.AddHttpClient<NationalBankClient>(client =>
+            services.AddHttpClient<INationalBankClient, NationalBankClient>(client =>
                 client.BaseAddress = new Uri(configuration["ExternalServices:NationalBank"]));
 
             // UI

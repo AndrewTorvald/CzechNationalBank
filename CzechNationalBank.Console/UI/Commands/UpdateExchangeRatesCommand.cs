@@ -10,12 +10,12 @@ namespace CzechNationalBank.Console.UI.Commands
 {
     public class UpdateExchangeRatesCommand : ICommand
     {
-        private readonly NationalBankClient _client;
+        private readonly INationalBankClient _client;
         private readonly DatabaseContext _context;
 
         public string Description => "Заполнение базы данными за 2018 и 2019 год";
 
-        public UpdateExchangeRatesCommand(NationalBankClient client, DatabaseContext context)
+        public UpdateExchangeRatesCommand(INationalBankClient client, DatabaseContext context)
         {
             _client = client;
             _context = context;
