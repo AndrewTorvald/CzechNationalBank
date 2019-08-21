@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Reflection;
 using System.Threading.Tasks;
 using CzechNationalBank.Clients;
 using CzechNationalBank.Persistence;
@@ -44,8 +43,7 @@ namespace CzechNationalBank.Worker
 
             using (var scope = host.Services.CreateScope())
             {
-                var dbContext = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-                dbContext.Database.Migrate();
+                scope.ServiceProvider.GetRequiredService<DatabaseContext>().Database.Migrate();
             }
 
             await host.StartAsync();

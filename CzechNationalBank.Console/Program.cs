@@ -22,8 +22,7 @@ namespace CzechNationalBank.Console
 
             ConfigureLogging(provider);
             
-            var dbContext = provider.GetRequiredService<DatabaseContext>();
-            dbContext.Database.Migrate();
+            provider.GetRequiredService<DatabaseContext>().Database.Migrate();
 
             var commandLineInterface = provider.GetService<CommandLineInterface>();
             ConfigureCommandLineInterface(commandLineInterface);
