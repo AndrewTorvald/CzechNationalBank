@@ -24,7 +24,7 @@ namespace CzechNationalBank.Web.Controllers
         /// <summary>
         /// Получение отчета по курсу кроны
         /// </summary>
-        [HttpGet("/Report")]
+        [HttpGet("Report")]
         public async Task<FileStreamResult> GetReport([FromQuery] DateTimeOffset date, [FromQuery] ExportFormatOption format = ExportFormatOption.Txt)
         {
             var exportFileModel = await _service.BuildReport(date, format);
