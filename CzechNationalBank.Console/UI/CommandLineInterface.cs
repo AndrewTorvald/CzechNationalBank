@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using static System.Console;
@@ -40,7 +39,7 @@ namespace CzechNationalBank.Console.UI
         /// </summary>
         public async Task Run(string[] args)
         {
-            if (args.Length == 0 || args[0] == "-help")
+            if (args.Length == 0 || args[0] == "--help")
             {
                 ShowHelp();
                 return;
@@ -68,7 +67,6 @@ namespace CzechNationalBank.Console.UI
         {
             WriteLine("Консольное приложение для работы с Чешским национальным банком");
             WriteLine("==============================================================");
-            WriteLine($"Использование: {Assembly.GetEntryAssembly()?.GetName().Name} [команда] [аргументы]");
             
             WriteLine("Доступные команды:");
             foreach (var (commandName, commandType) in _commands)

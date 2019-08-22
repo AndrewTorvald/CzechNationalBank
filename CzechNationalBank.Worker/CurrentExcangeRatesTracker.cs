@@ -37,7 +37,7 @@ namespace CzechNationalBank.Worker
         }
 
         /// <inheritdoc />
-        public Task StartAsync(CancellationToken cancellationToken) //TODO поддержка остановки через токен
+        public Task StartAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Начало работы фоновой службы для сохранения текущего курса валют");
 
@@ -53,7 +53,7 @@ namespace CzechNationalBank.Worker
             using (var scope = _serviceProvider.CreateScope())
             {
                 var context = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-                var exchangeRates = await _client.GetDailyExchangeRates();
+                var exchangeRates = await _client.GetCurrentDailyExchangeRates();
 
                 if (exchangeRates.Any())
                 {

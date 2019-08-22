@@ -35,7 +35,11 @@ namespace CzechNationalBank.Worker
                         
                         services.AddHostedService<CurrentExchangeRatesTracker>();
 
-                        services.AddDbContext<DatabaseContext>();
+                        services.AddDbContext<DatabaseContext>(options =>
+                        {
+                            options.UseNpgsql(hostContext.Configuration["Storage:ConnectionString"],
+                                builder => { builder.MigrationsAssembly("CzechNationalBank"); });
+                        });
                     })
                 .UseConsoleLifetime()
                 .Build();

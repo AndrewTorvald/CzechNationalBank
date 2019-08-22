@@ -5,8 +5,10 @@ using Microsoft.AspNetCore.Hosting;
 
 namespace CzechNationalBank.Web
 {
+    /// <summary/>
     public class Program
     {
+        /// <summary/>
         public static void Main(string[] args)
         {
             CreateWebHostBuilder(args)
@@ -15,6 +17,7 @@ namespace CzechNationalBank.Web
                 .Run();
         }
 
+        /// <summary/>
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>();

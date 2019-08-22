@@ -16,7 +16,7 @@ namespace CzechNationalBank.Console.UI.Commands
             _context = context;
         }
 
-        public async Task Execute(string[] args) //TODO count/offset/search args
+        public async Task Execute(string[] args)
         {
             var data = await _context.ExchangeRates.AsNoTracking().ToListAsync();
 

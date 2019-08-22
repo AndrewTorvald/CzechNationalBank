@@ -46,7 +46,11 @@ namespace CzechNationalBank.Console
                 .Build();
 
             // Infrastructure
-            services.AddDbContext<DatabaseContext>();
+            services.AddDbContext<DatabaseContext>(options =>
+            {
+                options.UseNpgsql(configuration["Storage:ConnectionString"],
+                    builder => { builder.MigrationsAssembly("CzechNationalBank"); });
+            });
             
             services.AddHttpClient<INationalBankClient, NationalBankClient>(client =>
                 client.BaseAddress = new Uri(configuration["ExternalServices:NationalBank"]));

@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using CzechNationalBank.Web.Infrastructure.Reports.Abstractions;
 using CzechNationalBank.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,10 +13,10 @@ namespace CzechNationalBank.Web.Controllers
     [Route("api/[controller]")]
     public class ExchangeRatesController : ControllerBase
     {
-        private readonly ReportService _service;
+        private readonly IExchangeRateService _service;
 
         /// <inheritdoc />
-        public ExchangeRatesController(ReportService service)
+        public ExchangeRatesController(IExchangeRateService service)
         {
             _service = service;
         }
@@ -24,9 +25,9 @@ namespace CzechNationalBank.Web.Controllers
         /// Получение отчета по курсу кроны
         /// </summary>
         [HttpGet("/Report")]
-        public async Task<object> GetReport([FromQuery] DateTimeOffset date, [FromQuery] string format = "txt")
+        public async Task<FileStreamResult> GetReport([FromQuery] DateTimeOffset date, [FromQuery] ExportFormatOption format = ExportFormatOption.Txt)
         {
-            var exportFileModel = await _service.BuildExchangeRatesReport(date, format);
+            var exportFileModel = await _service.BuildReport(date, format);
             
             return File(exportFileModel.Stream, "application/octet-stream", exportFileModel.FileName);
         }

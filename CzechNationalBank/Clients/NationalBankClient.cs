@@ -30,41 +30,43 @@ namespace CzechNationalBank.Clients
                 throw new Exception($"Ошибка запроса на {_client.BaseAddress}");
             
             var fileStream = await response.Content.ReadAsStreamAsync();
-            var streamReader = new StreamReader(fileStream, System.Text.Encoding.UTF8);
 
-            var result = new List<ExchangeRate>();
-
-            var header = streamReader.ReadLine()
-                .Split('|')
-                .Skip(1)
-                .Select(substring => substring.Split())
-                .Select(currency => new
-                {
-                    Amount = currency[0],
-                    Code = currency[1]
-                }).ToList();
-
-            string line;
-            while ((line = streamReader.ReadLine()) != null)
+            using (var streamReader = new StreamReader(fileStream, System.Text.Encoding.UTF8))
             {
-                var substrings = line.Split('|');
-                var date =
-                    DateTimeOffset.ParseExact(substrings.First(), "dd.MM.yyyy", 
-                        CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
-                
-                var data = substrings.Skip(1).Select((rate, index) => new ExchangeRate
-                {
-                    Rate = decimal.Parse(rate) * int.Parse(header[index].Amount),
-                    Date = date,
-                    Code = header[index].Code
-                });
-                result.AddRange(data);
-            }
+                var result = new List<ExchangeRate>();
 
-            return result;
+                var header = (await streamReader.ReadLineAsync())
+                    .Split('|')
+                    .Skip(1)
+                    .Select(substring => substring.Split())
+                    .Select(currency => new
+                    {
+                        Amount = currency[0],
+                        Code = currency[1]
+                    }).ToList();
+
+                while (!streamReader.EndOfStream)
+                {
+                    var substrings = (await streamReader.ReadLineAsync()).Split('|');
+                    var date =
+                        DateTimeOffset.ParseExact(substrings.First(), "dd.MM.yyyy",
+                            CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
+
+                    var data = substrings.Skip(1).Select((rate, index) => new ExchangeRate
+                    {
+                        Rate = decimal.Parse(rate) / int.Parse(header[index].Amount),
+                        Date = date,
+                        Code = header[index].Code
+                    });
+                    result.AddRange(data);
+                }
+
+                return result;
+            }
         }
-        
-        public async Task<List<ExchangeRate>> GetDailyExchangeRates()
+
+        /// <inheritdoc />
+        public async Task<List<ExchangeRate>> GetCurrentDailyExchangeRates()
         {
             var response = await _client.GetAsync(
                 $"en/financial_markets/foreign_exchange_market/exchange_rate_fixing/daily.txt");
@@ -73,32 +75,34 @@ namespace CzechNationalBank.Clients
                 throw new Exception($"Ошибка запроса на {_client.BaseAddress}");
             
             var fileStream = await response.Content.ReadAsStreamAsync();
-            var streamReader = new StreamReader(fileStream, System.Text.Encoding.UTF8);
-
-            var result = new List<ExchangeRate>();
-
-            var header = streamReader.ReadLine().Split('#').First();
-            header = header.Remove(header.Length - 1);
-
-            var rateDate = 
-                DateTimeOffset.ParseExact(header, "dd MMM yyyy", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
             
-            streamReader.ReadLine();
-
-            string line;
-            while ((line = streamReader.ReadLine()) != null)
+            using (var streamReader = new StreamReader(fileStream, System.Text.Encoding.UTF8))
             {
-                var substrings = line.Split('|');
-                var data = new ExchangeRate
-                {
-                    Date = rateDate,
-                    Code = substrings[3],
-                    Rate = decimal.Parse(substrings[4]) * int.Parse(substrings[2])
-                };
-                result.Add(data);
-            }
+                var result = new List<ExchangeRate>();
 
-            return result;
+                var header = (await streamReader.ReadLineAsync()).Split('#').First();
+                header = header.Remove(header.Length - 1);
+
+                var rateDate = 
+                    DateTimeOffset.ParseExact(header, "dd MMM yyyy", 
+                        CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
+            
+                await streamReader.ReadLineAsync();
+
+                while (!streamReader.EndOfStream)
+                {
+                    var substrings = (await streamReader.ReadLineAsync()).Split('|');
+                    var data = new ExchangeRate
+                    {
+                        Date = rateDate,
+                        Code = substrings[3],
+                        Rate = decimal.Parse(substrings[4]) / int.Parse(substrings[2])
+                    };
+                    result.Add(data);
+                }
+
+                return result;
+            }
         }
     }
 }

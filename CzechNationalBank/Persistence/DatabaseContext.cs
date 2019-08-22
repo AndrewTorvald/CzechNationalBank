@@ -13,12 +13,13 @@ namespace CzechNationalBank.Persistence
         public DbSet<ExchangeRate> ExchangeRates { get; set; }
         
         /// <inheritdoc />
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        protected DatabaseContext()
         {
-            //TODO: убрать дублирование строки подключения
-            optionsBuilder.UseNpgsql("Host=localhost;Username=postgres;Password=root;Database=CzechNationalBank");
+        }
 
-            base.OnConfiguring(optionsBuilder);
+        /// <inheritdoc />
+        public DatabaseContext(DbContextOptions options) : base(options)
+        {
         }
 
         /// <inheritdoc />

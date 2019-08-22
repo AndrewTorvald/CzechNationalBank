@@ -20,6 +20,6 @@ namespace CzechNationalBank.Clients
         /// Получение валютных курсов за текущий день
         /// </summary>
         /// <returns>Список валютных курсов за день</returns>
-        Task<List<ExchangeRate>> GetDailyExchangeRates();
+        Task<List<ExchangeRate>> GetCurrentDailyExchangeRates();
     }
 }
